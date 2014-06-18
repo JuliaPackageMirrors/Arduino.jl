@@ -11,6 +11,7 @@ deps = [ arduino = library_dependency("Arduino", aliases = ["libarduino"]) ]
     provides(BuildProcess,
             (@build_steps begin
                 CreateDirectory(ardbuilddir)
+                CreateDirectory("$prefix/lib")
                 @build_steps begin
                     ChangeDirectory(ardbuilddir)
                     FileRule(joinpath(prefix, "lib", "libarduino.so"), @build_steps begin
@@ -21,7 +22,6 @@ deps = [ arduino = library_dependency("Arduino", aliases = ["libarduino"]) ]
                     end)
                 end
              end), arduino, os = :Linux)
-    run()
 end
 
 @osx_only begin
@@ -31,6 +31,7 @@ end
     provides(BuildProcess,
             (@build_steps begin
                 CreateDirectory(ardbuilddir)
+                CreateDirectory("$prefix/lib")
                 @build_steps begin
                     ChangeDirectory(ardbuilddir)
                     FileRule(joinpath(prefix, "lib", "libarduino.dylib"), @build_steps begin
@@ -41,7 +42,6 @@ end
                     end)
                 end
              end), arduino, os = :Darwin)
-    run()
 end
 
 @windows_only begin
@@ -51,18 +51,18 @@ end
     provides(BuildProcess,
             (@build_steps begin
                 CreateDirectory(ardbuilddir)
+                CreateDirectory("$prefix/lib")
                 @build_steps begin
                     ChangeDirectory(ardbuilddir)
                     FileRule(joinpath(prefix, "lib", "libarduino.dll"), @build_steps begin
                         `g++ -c -O -Wall -std=gnu99 $ardsrcdir/arduino-serial-lib.c`
-                        `g++ -shared -o libarduino.dll arduino-serial-lib.o -Wl,--out-implib,libarduino.a
+                        `g++ -shared -o libarduino.dll arduino-serial-lib.o -Wl,--out-implib,libarduino.a`
                         `cp libarduino.dll $prefix/lib`
                         `cp libarduino.a $prefix/lib`
                         `cp arduino-serial-lib.h $prefix/include`
                     end)
                 end
              end), arduino, os = :Windows)
-    run()
 end
 
 @BinDeps.install
